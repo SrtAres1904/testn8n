@@ -162,13 +162,25 @@
       if (text) formData.append('introText', text);
 
       try {
-        const response = await fetch(
+        const res = await fetch(
           'https://zforsythe.app.n8n.cloud/webhook/voice-input-text',
           {
             method: 'POST',
             body: formData
           }
-        ).then(r => r.json());
+        );
+        
+        const text = await res.text(); // Read response body as text
+        
+        let response;
+        try {
+          response = JSON.parse(text); // Try parsing as JSON
+        } catch {
+          response = { reply: text || '[empty response]' }; // Fallback
+        }
+        
+        addMessage(response.reply || '[no reply]', 'bot');
+
 
         addMessage(response.reply || '[no reply]', 'bot');
 
