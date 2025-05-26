@@ -194,39 +194,33 @@
         const blob = new Blob(chunks, { type: 'audio/webm' });
         const formData = new FormData();
         formData.append('audio', blob, 'voiceMessage.webm');
-
+      
         try {
           const res = await fetch(
-            'https://zforsythe.app.n8n.cloud/webhook/voice-input-text',
+            'https://zforsythe.app.n8n.cloud/webhook/voice-input-text', // ✅ Use production
             {
               method: 'POST',
               body: formData
             }
           );
-        
+      
           const text = await res.text();
           let response;
-        
           try {
             response = JSON.parse(text);
           } catch {
             response = { reply: text || '[empty response]' };
           }
-        
-          addMessage(`${response.transcript || '[voice transcript]'}`, 'user');
+      
+          addMessage(response.transcript || '[voice input]', 'user');
           addMessage(response.reply || '[no reply]', 'bot');
-        
-        } catch (err) {
-          console.error('Audio fetch failed:', err);
-          addMessage('⚠️ Failed to contact the AI server.', 'bot');
-        }
-
-
+      
         } catch (err) {
           console.error('Audio fetch failed:', err);
           addMessage('⚠️ Failed to contact the AI server.', 'bot');
         }
       };
+
 
       mediaRecorder.start();
       micBtn.classList.add('recording');
