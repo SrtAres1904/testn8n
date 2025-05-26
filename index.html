@@ -126,18 +126,25 @@
     try {
       const res = await fetch('https://zforsythe.app.n8n.cloud/webhook/voice-input-text', {
         method: 'POST',
-        body: JSON.stringify({ text: payload.text }),
-        headers: {
-          // Leave out Content-Type to avoid CORS preflight errors in some cases
-          'Content-Type': 'application/json'
-        }
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: payload.text })
       });
-      return await res.json();
+  
+      const text = await res.text();
+  
+      // Try to parse as JSON, otherwise return raw
+      try {
+        return JSON.parse(text);
+      } catch {
+        return { reply: text || '[Empty response]' };
+      }
+  
     } catch (err) {
       console.error('Text fetch failed:', err);
       return { reply: '⚠️ Failed to reach the AI server.' };
     }
   }
+
 
   sendBtn.onclick = async () => {
     const text = inputText.value.trim();
