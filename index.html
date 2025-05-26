@@ -196,16 +196,31 @@
         formData.append('audio', blob, 'voiceMessage.webm');
 
         try {
-          const response = await fetch(
+          const res = await fetch(
             'https://zforsythe.app.n8n.cloud/webhook/voice-input-text',
             {
               method: 'POST',
               body: formData
             }
-          ).then(r => r.json());
-
-          addMessage(`${response.transcript}`, 'user');
+          );
+        
+          const text = await res.text();
+          let response;
+        
+          try {
+            response = JSON.parse(text);
+          } catch {
+            response = { reply: text || '[empty response]' };
+          }
+        
+          addMessage(`${response.transcript || '[voice transcript]'}`, 'user');
           addMessage(response.reply || '[no reply]', 'bot');
+        
+        } catch (err) {
+          console.error('Audio fetch failed:', err);
+          addMessage('⚠️ Failed to contact the AI server.', 'bot');
+        }
+
 
         } catch (err) {
           console.error('Audio fetch failed:', err);
